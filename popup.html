@@ -1,0 +1,733 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Gmail Spam Detector Pro</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      width: 450px;
+      min-height: 600px;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: #333;
+      overflow-x: hidden;
+    }
+    
+    .header {
+      background: rgba(255, 255, 255, 0.95);
+      padding: 20px;
+      text-align: center;
+      border-bottom: 1px solid rgba(0,0,0,0.1);
+      position: relative;
+    }
+    
+    .header h1 {
+      font-size: 20px;
+      font-weight: 700;
+      color: #2c3e50;
+      margin-bottom: 4px;
+    }
+    
+    .header .subtitle {
+      font-size: 12px;
+      color: #7f8c8d;
+      font-weight: 500;
+    }
+    
+    .status-indicator {
+      position: absolute;
+      top: 15px;
+      right: 15px;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: #27ae60;
+      animation: pulse 2s infinite;
+    }
+    
+    @keyframes pulse {
+      0% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.7; transform: scale(1.1); }
+      100% { opacity: 1; transform: scale(1); }
+    }
+    
+    .main-content {
+      background: rgba(255, 255, 255, 0.95);
+      margin: 10px;
+      border-radius: 12px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+      overflow: hidden;
+    }
+    
+    .tab-navigation {
+      display: flex;
+      background: #f8f9fa;
+      border-bottom: 1px solid #e9ecef;
+    }
+    
+    .tab {
+      flex: 1;
+      padding: 12px 16px;
+      text-align: center;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 600;
+      color: #6c757d;
+      transition: all 0.3s ease;
+      border-bottom: 3px solid transparent;
+    }
+    
+    .tab:hover {
+      background: #e9ecef;
+      color: #495057;
+    }
+    
+    .tab.active {
+      color: #4285f4;
+      border-bottom-color: #4285f4;
+      background: white;
+    }
+    
+    .tab-content {
+      display: none;
+      padding: 20px;
+      min-height: 400px;
+    }
+    
+    .tab-content.active {
+      display: block;
+    }
+    
+    .section {
+      margin-bottom: 24px;
+    }
+    
+    .section h3 {
+      font-size: 14px;
+      font-weight: 600;
+      color: #2c3e50;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    .setting-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 0;
+      border-bottom: 1px solid #f1f3f4;
+    }
+    
+    .setting-item:last-child {
+      border-bottom: none;
+    }
+    
+    .setting-label {
+      font-size: 13px;
+      color: #495057;
+      font-weight: 500;
+    }
+    
+    .setting-description {
+      font-size: 11px;
+      color: #6c757d;
+      margin-top: 2px;
+    }
+    
+    .toggle-switch {
+      position: relative;
+      width: 44px;
+      height: 24px;
+      background: #ccc;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+    
+    .toggle-switch.active {
+      background: #4285f4;
+    }
+    
+    .toggle-switch::after {
+      content: '';
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      width: 20px;
+      height: 20px;
+      background: white;
+      border-radius: 50%;
+      transition: transform 0.3s ease;
+    }
+    
+    .toggle-switch.active::after {
+      transform: translateX(20px);
+    }
+    
+    .slider-container {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    
+    .slider {
+      flex: 1;
+      height: 4px;
+      background: #e9ecef;
+      border-radius: 2px;
+      outline: none;
+      -webkit-appearance: none;
+    }
+    
+    .slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 16px;
+      height: 16px;
+      background: #4285f4;
+      border-radius: 50%;
+      cursor: pointer;
+    }
+    
+    .slider-value {
+      font-weight: 600;
+      color: #4285f4;
+      min-width: 20px;
+      text-align: center;
+    }
+    
+    .stats-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-top: 16px;
+    }
+    
+    .stat-card {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 16px;
+      border-radius: 8px;
+      text-align: center;
+    }
+    
+    .stat-number {
+      font-size: 24px;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+    
+    .stat-label {
+      font-size: 11px;
+      opacity: 0.9;
+    }
+    
+    .performance-card {
+      background: #f8f9fa;
+      border: 1px solid #e9ecef;
+      border-radius: 8px;
+      padding: 16px;
+      margin-top: 16px;
+    }
+    
+    .performance-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 0;
+      border-bottom: 1px solid #f1f3f4;
+    }
+    
+    .performance-item:last-child {
+      border-bottom: none;
+    }
+    
+    .performance-label {
+      font-size: 12px;
+      color: #6c757d;
+    }
+    
+    .performance-value {
+      font-size: 12px;
+      font-weight: 600;
+      color: #4285f4;
+    }
+    
+    .log-container {
+      max-height: 300px;
+      overflow-y: auto;
+      border: 1px solid #e9ecef;
+      border-radius: 8px;
+      background: #f8f9fa;
+    }
+    
+    .log-entry {
+      padding: 12px;
+      border-bottom: 1px solid #e9ecef;
+      font-size: 12px;
+    }
+    
+    .log-entry:last-child {
+      border-bottom: none;
+    }
+    
+    .log-sender {
+      font-weight: 600;
+      color: #2c3e50;
+      margin-bottom: 4px;
+    }
+    
+    .log-subject {
+      color: #495057;
+      margin-bottom: 4px;
+      word-break: break-word;
+    }
+    
+    .log-reason {
+      color: #e74c3c;
+      font-size: 11px;
+    }
+    
+    .log-date {
+      color: #6c757d;
+      font-size: 11px;
+      margin-top: 4px;
+    }
+    
+    .unsubscribe-entry {
+      background: rgba(52, 152, 219, 0.1);
+    }
+    
+    .no-log {
+      padding: 20px;
+      text-align: center;
+      color: #6c757d;
+      font-style: italic;
+    }
+    
+    .button {
+      background: #4285f4;
+      color: white;
+      border: none;
+      padding: 10px 16px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      width: 100%;
+      margin-top: 12px;
+    }
+    
+    .button:hover {
+      background: #3367d6;
+      transform: translateY(-1px);
+    }
+    
+    .button.secondary {
+      background: #6c757d;
+    }
+    
+    .button.secondary:hover {
+      background: #5a6268;
+    }
+    
+    .button.success {
+      background: #27ae60;
+    }
+    
+    .button.success:hover {
+      background: #229954;
+    }
+    
+    .button.danger {
+      background: #e74c3c;
+    }
+    
+    .button.danger:hover {
+      background: #c0392b;
+    }
+    
+    .notification {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: #4285f4;
+      color: white;
+      padding: 12px 16px;
+      border-radius: 8px;
+      font-size: 13px;
+      z-index: 10000;
+      animation: slideIn 0.3s ease;
+    }
+    
+    @keyframes slideIn {
+      from { transform: translateX(100%); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+    
+    .loading {
+      display: inline-block;
+      width: 16px;
+      height: 16px;
+      border: 2px solid #f3f3f3;
+      border-top: 2px solid #4285f4;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+    
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    
+    .export-section {
+      background: #f8f9fa;
+      border: 1px solid #e9ecef;
+      border-radius: 8px;
+      padding: 16px;
+      margin-top: 16px;
+    }
+    
+    .export-section h4 {
+      font-size: 13px;
+      font-weight: 600;
+      color: #2c3e50;
+      margin-bottom: 8px;
+    }
+    
+    .export-options {
+      display: flex;
+      gap: 8px;
+      margin-top: 8px;
+    }
+    
+    .export-button {
+      flex: 1;
+      padding: 8px 12px;
+      font-size: 11px;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="status-indicator" id="status-indicator"></div>
+    <h1>🛡️ Spam Detector Pro</h1>
+    <div class="subtitle">Enterprise-grade email protection</div>
+  </div>
+
+  <div class="main-content">
+    <div class="tab-navigation">
+      <div class="tab active" data-tab="dashboard">📊 Dashboard</div>
+      <div class="tab" data-tab="settings">⚙️ Settings</div>
+      <div class="tab" data-tab="analytics">📈 Analytics</div>
+      <div class="tab" data-tab="logs">📋 Logs</div>
+    </div>
+
+    <!-- Dashboard Tab -->
+    <div class="tab-content active" id="dashboard">
+      <div class="section">
+        <h3>🛡️ Protection Status</h3>
+        <div class="status-grid">
+          <div class="status-card">
+            <div class="status-icon">🛡️</div>
+            <div class="status-text">Active</div>
+          </div>
+          <div class="status-card">
+            <div class="status-icon">⚡</div>
+            <div class="status-text">Real-time</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <h3>📊 Quick Stats</h3>
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-number" id="emails-processed">0</div>
+            <div class="stat-label">Emails Processed</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-number" id="spam-detected">0</div>
+            <div class="stat-label">Spam Detected</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-number" id="unsubscribes">0</div>
+            <div class="stat-label">Auto Unsubscribes</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-number" id="organizations">0</div>
+            <div class="stat-label">Auto Organizations</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <h3>⚡ Performance</h3>
+        <div class="performance-metrics">
+          <div class="metric">
+            <span class="metric-label">Processing Speed:</span>
+            <span class="metric-value" id="processing-speed">0ms</span>
+          </div>
+          <div class="metric">
+            <span class="metric-label">Cache Hit Rate:</span>
+            <span class="metric-value" id="cache-hit-rate">0%</span>
+          </div>
+          <div class="metric">
+            <span class="metric-label">Memory Usage:</span>
+            <span class="metric-value" id="memory-usage">0MB</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Settings Tab -->
+    <div class="tab-content" id="settings">
+      <div class="section">
+        <h3>🔧 Detection Settings</h3>
+        
+        <div class="setting-item">
+          <div>
+            <div class="setting-label">Sensitivity Level</div>
+            <div class="setting-description">Adjust how aggressively to detect spam</div>
+          </div>
+          <div class="slider-container">
+            <input type="range" id="sensitivity" min="1" max="10" value="3" class="slider">
+            <span class="slider-value" id="sensitivity-value">3</span>
+          </div>
+        </div>
+
+        <div class="setting-item">
+          <div>
+            <div class="setting-label">Auto-Delete Spam</div>
+            <div class="setting-description">Automatically move spam to trash</div>
+          </div>
+          <div class="toggle-switch" id="auto-delete"></div>
+        </div>
+
+        <div class="setting-item">
+          <div>
+            <div class="setting-label">Log Deletions</div>
+            <div class="setting-description">Keep track of deleted emails</div>
+          </div>
+          <div class="toggle-switch" id="log-deletions"></div>
+        </div>
+
+        <div class="setting-item">
+          <div>
+            <div class="setting-label">Auto Unsubscribe</div>
+            <div class="setting-description">Automatically handle unsubscribe links</div>
+          </div>
+          <div class="toggle-switch" id="auto-unsubscribe"></div>
+        </div>
+
+        <div class="setting-item">
+          <div>
+            <div class="setting-label">Auto-Organize Emails</div>
+            <div class="setting-description">Automatically categorize and organize emails</div>
+          </div>
+          <div class="toggle-switch" id="auto-organize"></div>
+        </div>
+      </div>
+
+      <div class="section">
+        <h3>⚡ Performance Settings</h3>
+        
+        <div class="setting-item">
+          <div>
+            <div class="setting-label">AI-Powered Detection</div>
+            <div class="setting-description">Use advanced AI algorithms</div>
+          </div>
+          <div class="toggle-switch" id="enable-ai"></div>
+        </div>
+
+        <div class="setting-item">
+          <div>
+            <div class="setting-label">Advanced Caching</div>
+            <div class="setting-description">Cache results for faster processing</div>
+          </div>
+          <div class="toggle-switch" id="enable-caching"></div>
+        </div>
+
+        <div class="setting-item">
+          <div>
+            <div class="setting-label">Batch Processing</div>
+            <div class="setting-description">Process multiple emails simultaneously</div>
+          </div>
+          <div class="toggle-switch" id="batch-processing"></div>
+        </div>
+
+        <div class="setting-item">
+          <div>
+            <div class="setting-label">Memory Optimization</div>
+            <div class="setting-description">Automatic memory management</div>
+          </div>
+          <div class="toggle-switch" id="memory-optimization"></div>
+        </div>
+
+        <div class="setting-item">
+          <div>
+            <div class="setting-label">Real-Time Protection</div>
+            <div class="setting-description">Continuous monitoring</div>
+          </div>
+          <div class="toggle-switch" id="real-time-protection"></div>
+        </div>
+      </div>
+
+      <div class="section">
+        <h3>📊 Analytics Settings</h3>
+        
+        <div class="setting-item">
+          <div>
+            <div class="setting-label">Enable Analytics</div>
+            <div class="setting-description">Track email patterns and insights</div>
+          </div>
+          <div class="toggle-switch" id="enable-analytics"></div>
+        </div>
+
+        <div class="setting-item">
+          <div>
+            <div class="setting-label">Productivity Tracking</div>
+            <div class="setting-description">Monitor email productivity metrics</div>
+          </div>
+          <div class="toggle-switch" id="productivity-tracking"></div>
+        </div>
+      </div>
+
+      <div class="section">
+        <h3>💾 Data Management</h3>
+        
+        <button id="export-data" class="action-button">📤 Export Data</button>
+        <button id="clear-logs" class="action-button">🗑️ Clear Logs</button>
+        <button id="reset-settings" class="action-button">🔄 Reset Settings</button>
+      </div>
+    </div>
+
+    <!-- Analytics Tab -->
+    <div class="tab-content" id="analytics">
+      <div class="section">
+        <h3>📈 Email Analytics</h3>
+        
+        <div class="analytics-grid">
+          <div class="analytics-card">
+            <h4>📧 Email Volume</h4>
+            <div class="chart-container">
+              <canvas id="email-volume-chart"></canvas>
+            </div>
+          </div>
+          
+          <div class="analytics-card">
+            <h4>🎯 Spam Detection</h4>
+            <div class="chart-container">
+              <canvas id="spam-detection-chart"></canvas>
+            </div>
+          </div>
+          
+          <div class="analytics-card">
+            <h4>📂 Email Categories</h4>
+            <div class="chart-container">
+              <canvas id="category-distribution-chart"></canvas>
+            </div>
+          </div>
+          
+          <div class="analytics-card">
+            <h4>⏰ Productivity Insights</h4>
+            <div class="productivity-metrics">
+              <div class="metric">
+                <span class="metric-label">Time Saved:</span>
+                <span class="metric-value" id="time-saved">0 hours</span>
+              </div>
+              <div class="metric">
+                <span class="metric-label">Emails Organized:</span>
+                <span class="metric-value" id="emails-organized">0</span>
+              </div>
+              <div class="metric">
+                <span class="metric-label">Spam Blocked:</span>
+                <span class="metric-value" id="spam-blocked">0</span>
+              </div>
+              <div class="metric">
+                <span class="metric-label">Productivity Score:</span>
+                <span class="metric-value" id="productivity-score">0%</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <h3>📊 Detailed Insights</h3>
+        
+        <div class="insights-grid">
+          <div class="insight-card">
+            <h4>🔍 Top Senders</h4>
+            <div id="top-senders-list" class="insight-list">
+              <!-- Populated by JavaScript -->
+            </div>
+          </div>
+          
+          <div class="insight-card">
+            <h4>📅 Peak Activity Times</h4>
+            <div id="peak-times-list" class="insight-list">
+              <!-- Populated by JavaScript -->
+            </div>
+          </div>
+          
+          <div class="insight-card">
+            <h4>🎯 Spam Patterns</h4>
+            <div id="spam-patterns-list" class="insight-list">
+              <!-- Populated by JavaScript -->
+            </div>
+          </div>
+          
+          <div class="insight-card">
+            <h4>📈 Efficiency Trends</h4>
+            <div id="efficiency-trends-list" class="insight-list">
+              <!-- Populated by JavaScript -->
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <h3>📋 Recommendations</h3>
+        
+        <div id="recommendations-list" class="recommendations">
+          <!-- Populated by JavaScript -->
+        </div>
+      </div>
+    </div>
+
+    <!-- Logs Tab -->
+    <div class="tab-content" id="logs">
+      <div class="section">
+        <h3>📋 Activity Log</h3>
+        <div id="activity-log" class="log-container">
+          <!-- Activity log entries will be populated here -->
+        </div>
+      </div>
+
+      <div class="section">
+        <h3>📧 Unsubscribe History</h3>
+        <div id="unsubscribe-list" class="log-container">
+          <!-- Unsubscribe history will be populated here -->
+        </div>
+      </div>
+
+      <div class="section">
+        <h3>🗑️ Data Management</h3>
+        <button id="clear-activity-log" class="button secondary">Clear Activity Log</button>
+        <button id="export-activity-data" class="button">Export Activity Data</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html> 

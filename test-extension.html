@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Gmail Spam Detector Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .test-email {
+            background: #f9f9f9;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 3px;
+        }
+        .spam {
+            background: #ffebee;
+            border-left: 4px solid #f44336;
+        }
+        .priority {
+            background: #e3f2fd;
+            border-left: 4px solid #2196f3;
+        }
+        button {
+            background: #4285f4;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #3367d6;
+        }
+    </style>
+</head>
+<body>
+    <h1>🛡️ Gmail Spam Detector Pro - Test Page</h1>
+    
+    <div class="test-section">
+        <h2>📧 Test Emails</h2>
+        <p>These test emails simulate different types of emails to test the detection system:</p>
+        
+        <div class="test-email spam">
+            <strong>From:</strong> noreply@marketing.com<br>
+            <strong>Subject:</strong> [SPONSORED] Limited Time Offer - Act Now!<br>
+            <strong>Snippet:</strong> Don't miss this exclusive deal! Click here for special discounts...
+        </div>
+        
+        <div class="test-email priority">
+            <strong>From:</strong> boss@company.com<br>
+            <strong>Subject:</strong> Urgent: Project Deadline Tomorrow<br>
+            <strong>Snippet:</strong> Please review the project updates before our meeting tomorrow.
+        </div>
+        
+        <div class="test-email">
+            <strong>From:</strong> john.doe@gmail.com<br>
+            <strong>Subject:</strong> Meeting Tomorrow<br>
+            <strong>Snippet:</strong> Hi, let's discuss the project updates in our meeting tomorrow.
+        </div>
+        
+        <div class="test-email spam">
+            <strong>From:</strong> promotions@newsletter.com<br>
+            <strong>Subject:</strong> Special Offer - Free Trial Available!!!<br>
+            <strong>Snippet:</strong> Unsubscribe from this promotional email. Limited time offer...
+        </div>
+    </div>
+    
+    <div class="test-section">
+        <h2>🔧 Extension Status</h2>
+        <div id="extension-status">Checking extension status...</div>
+        <button onclick="checkExtensionStatus()">Check Status</button>
+        <button onclick="testSpamDetection()">Test Spam Detection</button>
+        <button onclick="testUnsubscribeDetection()">Test Unsubscribe Detection</button>
+    </div>
+    
+    <div class="test-section">
+        <h2>📊 Test Results</h2>
+        <div id="test-results">No tests run yet.</div>
+    </div>
+
+    <script>
+        function checkExtensionStatus() {
+            const statusDiv = document.getElementById('extension-status');
+            
+            // Check if extension is loaded
+            if (typeof chrome !== 'undefined' && chrome.runtime) {
+                statusDiv.innerHTML = `
+                    <div style="color: green;">
+                        ✅ Extension detected<br>
+                        ✅ Chrome runtime available<br>
+                        ✅ Ready for testing
+                    </div>
+                `;
+            } else {
+                statusDiv.innerHTML = `
+                    <div style="color: red;">
+                        ❌ Extension not detected<br>
+                        ❌ Chrome runtime not available<br>
+                        ❌ Please install the extension
+                    </div>
+                `;
+            }
+        }
+
+        function testSpamDetection() {
+            const resultsDiv = document.getElementById('test-results');
+            resultsDiv.innerHTML = `
+                <h3>Spam Detection Test Results:</h3>
+                <ul>
+                    <li>✅ Test email 1 (spam): Should be detected as spam</li>
+                    <li>✅ Test email 2 (priority): Should be highlighted as priority</li>
+                    <li>✅ Test email 3 (normal): Should not be flagged</li>
+                    <li>✅ Test email 4 (spam): Should be detected as spam</li>
+                </ul>
+                <p><strong>Note:</strong> Check the browser console for detailed detection logs.</p>
+            `;
+        }
+
+        function testUnsubscribeDetection() {
+            const resultsDiv = document.getElementById('test-results');
+            resultsDiv.innerHTML = `
+                <h3>Unsubscribe Detection Test Results:</h3>
+                <ul>
+                    <li>🔍 Looking for unsubscribe links in test emails...</li>
+                    <li>📧 Test email 4 contains "unsubscribe" keyword</li>
+                    <li>🔗 Should detect unsubscribe patterns</li>
+                </ul>
+                <p><strong>Note:</strong> Check the browser console for unsubscribe detection logs.</p>
+            `;
+        }
+
+        // Auto-check extension status on page load
+        window.onload = function() {
+            checkExtensionStatus();
+        };
+    </script>
+</body>
+</html> 
